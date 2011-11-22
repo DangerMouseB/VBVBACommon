@@ -541,7 +541,7 @@ End Function
 '*************************************************************************************************************************************************************************************************************************************************
 
 Function DBErrors_errorState() As Variant()
-    DBErrors_errorState = Array(Err.Number, Err.Source, Err.Description, Err.HelpFile, Err.HelpContext, Err.lastDLLError, Erl())
+    DBErrors_errorState = Array(Err.Number, Err.Source, Err.Description, Err.HelpFile, Err.HelpContext, Err.LastDllError, Erl())
 End Function
 
 Function DBErrors_errorStateNumber(errorState() As Variant) As Long

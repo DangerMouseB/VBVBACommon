@@ -234,10 +234,10 @@ End Function
 
 'Receives a string pointer and it turns it into a regular string.
 Function DBStringFromPointer(ByVal lPointer As Long) As String
-    Dim temp As String, retval As Long
+    Dim temp As String, retVal As Long
     temp = String$(apiLStrLenA(ByVal lPointer), 0)
-    retval = apiLStrCpyA(ByVal temp, ByVal lPointer)
-    If retval Then DBStringFromPointer = temp
+    retVal = apiLStrCpyA(ByVal temp, ByVal lPointer)
+    If retVal Then DBStringFromPointer = temp
 End Function
 
 'The function takes an unsigned Integer and converts it to a Long for display or arithmetic purposes
@@ -259,4 +259,12 @@ Function DBIntegerToUnsigned(INT16 As Integer) As Long
     End If
 End Function
 
+Function DBNewGUID() As String
+    Dim aGUID As GUID, buffer() As Byte, GUIDStringLength As Long
+    Const bufferSize As Long = 40
+    apiCoCreateGuid aGUID
+    ReDim buffer(0 To (bufferSize * 2) - 1) As Byte
+    GUIDStringLength = apiStringFromGUID2(aGUID, VarPtr(buffer(0)), bufferSize)
+    DBNewGUID = Left$(buffer, GUIDStringLength - 1)
+End Function
 
