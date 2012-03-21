@@ -1,8 +1,7 @@
 Attribute VB_Name = "mWinAPI_Common"
 '*************************************************************************************************************************************************************************************************************************************************
-'            COPYRIGHT NOTICE
 '
-' Copyright (C) David Briant 2009 - All rights reserved
+' Copyright (c) David Briant 2009-2011 - All rights reserved
 '
 '*************************************************************************************************************************************************************************************************************************************************
  
@@ -203,7 +202,12 @@ Declare Sub apiOutputDebugStringA Lib "kernel32" Alias "OutputDebugStringA" (ByV
 Declare Function apiSHGetFolderPathA Lib "shfolder" Alias "SHGetFolderPathA" (ByVal hwndOwner As Long, ByVal nFolder As Long, ByVal hToken As Long, ByVal dwReserved As Long, ByVal lpszPath As String) As HRESULT
 ' SHGetSpecialFolderPathA is replaced by SHGetFolderPathA
 Declare Function apiSHGetSpecialFolderPathA Lib "shell32.dll" Alias "SHGetSpecialFolderPathA" (ByVal hwnd As Long, ByVal lpszPath As String, ByVal nFolder As Integer, ByVal fCreate As Boolean) As BOOL
- 
+
+' Environment variables
+Declare Function apiGetEnvironmentVariableA Lib "kernel32" Alias "GetEnvironmentVariableA" (ByVal lpName As String, ByVal lpBuffer As String, ByVal nSize As Long) As Long
+Declare Function apiSetEnvironmentVariableA Lib "kernel32" Alias "SetEnvironmentVariableA" (ByVal lpName As String, ByVal lpValue As String) As Long
+
+
 
 Function DBCDoubleAsUnsignedLong(aDouble As Double) As Long
     If aDouble < 0 Then Err.Raise 0
@@ -234,10 +238,10 @@ End Function
 
 'Receives a string pointer and it turns it into a regular string.
 Function DBStringFromPointer(ByVal lPointer As Long) As String
-    Dim temp As String, retVal As Long
+    Dim temp As String, retval As Long
     temp = String$(apiLStrLenA(ByVal lPointer), 0)
-    retVal = apiLStrCpyA(ByVal temp, ByVal lPointer)
-    If retVal Then DBStringFromPointer = temp
+    retval = apiLStrCpyA(ByVal temp, ByVal lPointer)
+    If retval Then DBStringFromPointer = temp
 End Function
 
 'The function takes an unsigned Integer and converts it to a Long for display or arithmetic purposes

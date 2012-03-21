@@ -1,8 +1,7 @@
 Attribute VB_Name = "mWinAPI_Windows"
 '*************************************************************************************************************************************************************************************************************************************************
-'            COPYRIGHT NOTICE
 '
-' Copyright (C) David Briant 2009 - All rights reserved
+' Copyright (c) David Briant 2009-2011 - All rights reserved
 '
 '*************************************************************************************************************************************************************************************************************************************************
  
@@ -11,6 +10,7 @@ Option Private Module
 
 Public Const WM_QUIT = &H12
 Public Const WM_USER = &H400
+Public Const WM_COPYDATA = &H4A
 
 ' see - http://msdn.microsoft.com/en-us/library/ms633574%28VS.85%29.aspx#class_elements
 Public Type WNDCLASSEX
@@ -41,6 +41,15 @@ Public Type WNDCLASS
     lpszMenuName As Long
     lpszClassName As Long
 End Type
+
+Public Type COPYDATASTRUCT
+   dwData As Long
+   cbData As Long
+   lpData As Long
+End Type
+
+' SendMessageTimeout
+Public Const SMTO_NORMAL = &H0
 
 ' GetLastError
 Public Const FORMAT_MESSAGE_ALLOCATE_BUFFER = &H100
@@ -122,32 +131,39 @@ Declare Function apiFormatMessageA Lib "kernel32" Alias "FormatMessageA" (ByVal 
 
 ' Windows
 Declare Function apiCreateWindowExA Lib "user32" Alias "CreateWindowExA" (ByVal dwExStyle As Long, ByVal lpClassName As String, ByVal lpWindowName As String, ByVal dwStyle As Long, ByVal x As Long, ByVal y As Long, ByVal nWidth As Long, ByVal nHeight As Long, ByVal hWndParent As Long, ByVal hMenu As Long, ByVal hInstance As Long, lpParam As Any) As Long
-Declare Function apiDestroyWindow Lib "user32" Alias "DestroyWindow" (ByVal hwnd As Long) As Long
+Declare Function apiDestroyWindow Lib "user32" Alias "DestroyWindow" (ByVal hWnd As Long) As Long
 Declare Function apiFindWindowExA Lib "user32" Alias "FindWindowExA" (ByVal hWndParent As Long, ByVal hWndChildAfter As Long, ByVal lpClassName As String, ByVal lpWindowName As String) As Long
 Declare Function apiFindWindowA Lib "user32" Alias "FindWindowA" (ByVal lpClassName As String, ByVal lpWindowName As String) As Long
-Declare Function apiEnumChildWindows Lib "user32" Alias "EnumChildWindows" (ByVal hWndParent As Long, ByVal lpEnumFunc As Long, ByVal lparam As Long) As Long
-Declare Function apiGetWindow Lib "user32" Alias "GetWindow" (ByVal hwnd As Long, ByVal wCmd As Long) As Long
-Declare Function apiSetForegroundWindow Lib "user32" Alias "SetForegroundWindow" (ByVal hwnd As Long) As Long
-Declare Function apiGetWindowTextA Lib "user32" Alias "GetWindowTextA" (ByVal hwnd As Long, ByVal lpString As String, ByVal cch As Long) As Long
-Declare Function apiIsWindow Lib "user32" Alias "IsWindow" (ByVal hwnd As Long) As Long
+Declare Function apiEnumChildWindows Lib "user32" Alias "EnumChildWindows" (ByVal hWndParent As Long, ByVal lpEnumFunc As Long, ByVal lParam As Long) As Long
+Declare Function apiGetWindow Lib "user32" Alias "GetWindow" (ByVal hWnd As Long, ByVal wCmd As Long) As Long
+Declare Function apiSetForegroundWindow Lib "user32" Alias "SetForegroundWindow" (ByVal hWnd As Long) As Long
+Declare Function apiGetWindowTextA Lib "user32" Alias "GetWindowTextA" (ByVal hWnd As Long, ByVal lpString As String, ByVal cch As Long) As Long
+Declare Function apiIsWindow Lib "user32" Alias "IsWindow" (ByVal hWnd As Long) As Long
+Declare Function apiEnumWindows Lib "user32" Alias "EnumWindows" (ByVal lpEnumFunc As Long, ByVal lParam As Long) As Long
+
+
+' Window properties
+Declare Function apiSetPropA Lib "user32" Alias "SetPropA" (ByVal hWnd As Long, ByVal lpString As String, ByVal hData As Long) As Long
+Declare Function apiGetPropA Lib "user32" Alias "GetPropA" (ByVal hWnd As Long, ByVal lpString As String) As Long
 
 ' Messages
 Declare Function apiRegisterWindowMessageA Lib "user32" Alias "RegisterWindowMessageA" (ByVal lpString As String) As Long
-Declare Function apiDefWindowProcA Lib "user32" Alias "DefWindowProcA" (ByVal hwnd As Long, ByVal wMsg As Long, ByVal wparam As Long, ByVal lparam As Long) As Long
-Declare Function apiPostMessageA Lib "user32" Alias "PostMessageA" (ByVal hwnd As Long, ByVal msg As Long, ByVal wparam As Long, ByVal lparam As Long) As Long
-Declare Function apiCallWindowProcA Lib "user32" Alias "CallWindowProcA" (ByVal lpPrevWndFunc As Any, ByVal hwnd As Long, ByVal msg As Long, ByVal wparam As Long, ByVal lparam As Long) As Long
-Declare Function apiSendMessageA Lib "user32" Alias "SendMessageA" (ByVal hwnd As Long, ByVal wMsg As Long, ByVal wparam As Long, ByVal lparam As Long) As Long
-Declare Function apiSetWindowLongA Lib "user32" Alias "SetWindowLongA" (ByVal hwnd As Long, ByVal nIndex As Long, ByVal dwNewLong As Long) As Long
-Declare Function apiGetWindowLongA Lib "user32" Alias "GetWindowLongA" (ByVal hwnd As Long, ByVal nIndex As Long) As Long
+Declare Function apiDefWindowProcA Lib "user32" Alias "DefWindowProcA" (ByVal hWnd As Long, ByVal wMsg As Long, ByVal wParam As Long, ByVal lParam As Long) As Long
+Declare Function apiPostMessageA Lib "user32" Alias "PostMessageA" (ByVal hWnd As Long, ByVal msg As Long, ByVal wParam As Long, ByVal lParam As Long) As Long
+Declare Function apiCallWindowProcA Lib "user32" Alias "CallWindowProcA" (ByVal lpPrevWndFunc As Any, ByVal hWnd As Long, ByVal msg As Long, ByVal wParam As Long, ByVal lParam As Long) As Long
+Declare Function apiSendMessageA Lib "user32" Alias "SendMessageA" (ByVal hWnd As Long, ByVal wMsg As Long, ByVal wParam As Long, ByVal lParam As Long) As Long
+Declare Function apiSetWindowLongA Lib "user32" Alias "SetWindowLongA" (ByVal hWnd As Long, ByVal nIndex As Long, ByVal dwNewLong As Long) As Long
+Declare Function apiGetWindowLongA Lib "user32" Alias "GetWindowLongA" (ByVal hWnd As Long, ByVal nIndex As Long) As Long
+Declare Function apiSendMessageTimeoutA Lib "user32" Alias "SendMessageTimeoutA" (ByVal hWnd As Long, ByVal msg As Long, ByVal wParam As Long, lParam As Any, ByVal fuFlags As Long, ByVal uTimeout As Long, lpdwResult As Long) As Long
 
 ' Classes
 Declare Function apiRegisterClassA Lib "user32" Alias "RegisterClassA" (lpWndClass As WNDCLASS) As Long
 Declare Function apiRegisterClassExA Lib "user32" Alias "RegisterClassExA" (lpwcx As WNDCLASSEX) As Long
 Declare Function apiUnregisterClassA Lib "user32" Alias "UnregisterClassA" (ByVal lpClassName As Any, ByVal hInstance As Long) As Long
-Declare Function apiGetClassNameA Lib "user32" Alias "GetClassNameA" (ByVal hwnd As Long, ByVal lpClassName As String, ByVal nMaxCount As Long) As Long
+Declare Function apiGetClassNameA Lib "user32" Alias "GetClassNameA" (ByVal hWnd As Long, ByVal lpClassName As String, ByVal nMaxCount As Long) As Long
 
 ' Atoms
-Declare Function apiGlobalAddAtom Lib "kernel32" Alias "GlobalAddAtomA" (ByVal lpString As String) As Long
+Declare Function apiGlobalAddAtomA Lib "kernel32" Alias "GlobalAddAtomA" (ByVal lpString As String) As Long
 Declare Function apiGlobalGetAtomNameA Lib "kernel32" Alias "GlobalGetAtomNameA" (ByVal nAtom As Long, ByVal lpString As String, ByVal nSize As Long) As Long
 Declare Function apiGlobalDeleteAtom Lib "kernel32" Alias "GlobalDeleteAtom" (ByVal nAtom As Long) As Long
 

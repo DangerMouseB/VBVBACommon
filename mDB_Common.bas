@@ -129,6 +129,37 @@ End Function
 
 
 '*************************************************************************************************************************************************************************************************************************************************
+' Environment Variables
+'*************************************************************************************************************************************************************************************************************************************************
+
+Function VBGetEnv(name As String) As String
+    VBGetEnv = Environ$(name)
+End Function
+
+Function setEnv(name As String, value As String) As String
+    Dim retval As Long
+    retval = apiSetEnvironmentVariableA(name, value)
+    setEnv = getEnv(name)
+End Function
+
+Function getEnv(name As String, Optional maxSize As Long = 2048) As String
+    Dim buffer As String, length As Long
+    buffer = String(8096, 0)
+    length = apiGetEnvironmentVariableA(name, buffer, Len(buffer))
+    getEnv = Left$(buffer, length)
+End Function
+
+'Function alterPath() As String
+'    Dim s As Object, sysVars As Object, userVars As Object
+'    Set s = CreateObject("WScript.Shell")
+'    Set sysVars = s.Environment("System")
+'    Set userVars = s.Environment("User")
+'    sysVars("Path") = sysVars("Path") & ";c:\python24Mercury"
+'    extendPath = sysVars("Path")
+'End Function
+
+
+'*************************************************************************************************************************************************************************************************************************************************
 ' array creation
 '*************************************************************************************************************************************************************************************************************************************************
 
