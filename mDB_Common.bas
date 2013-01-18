@@ -1,9 +1,22 @@
 Attribute VB_Name = "mDB_Common"
-'*************************************************************************************************************************************************************************************************************************************************
+'************************************************************************************************************************************************
 '
-' Copyright (c) David Briant 2009-2011 - All rights reserved
+'    Copyright (c) 2009-2011 David Briant - see https://github.com/DangerMouseB
 '
-'*************************************************************************************************************************************************************************************************************************************************
+'    This program is free software: you can redistribute it and/or modify
+'    it under the terms of the GNU Lesser General Public License as published by
+'    the Free Software Foundation, either version 3 of the License, or
+'    (at your option) any later version.
+'
+'    This program is distributed in the hope that it will be useful,
+'    but WITHOUT ANY WARRANTY; without even the implied warranty of
+'    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+'    GNU Lesser General Public License for more details.
+'
+'    You should have received a copy of the GNU Lesser General Public License
+'    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+'
+'************************************************************************************************************************************************
  
 Option Explicit
 Option Private Module
@@ -40,6 +53,19 @@ Sub DBClearArray(anArray As Variant)
         length = length * SA.rgSABound(i).cElements
     Next
     If length > 0 And SA.pvData > 0 Then apiZeroMemory ByVal SA.pvData, length
+End Sub
+
+
+'*************************************************************************************************************************************************************************************************************************************************
+' variant / object assignment
+'*************************************************************************************************************************************************************************************************************************************************
+
+Sub slet(oVar As Variant, inVar As Variant)
+    If varType(inVar) = vbObject Then
+        Set oVar = inVar
+    Else
+        oVar = inVar
+    End If
 End Sub
 
 
@@ -546,11 +572,11 @@ End Function
 '*************************************************************************************************************************************************************************************************************************************************
 
 Sub DBTraceError(ModuleSummary() As Variant, METHOD_NAME As String, errorState() As Variant)
-    ' do nothing
+    VBTrace DBTrace_prettySource(ModuleSummary, METHOD_NAME), prettyErrorState(errorState)
 End Sub
 
 Sub DBTrace(ModuleSummary() As Variant, METHOD_NAME As String, Description As String)
-    ' do nothing
+    VBTrace DBTrace_prettySource(ModuleSummary, METHOD_NAME), Description
 End Sub
 
 Function DBTrace_prettySource(ModuleSummary() As Variant, METHOD_NAME As String) As String
@@ -572,7 +598,7 @@ End Function
 '*************************************************************************************************************************************************************************************************************************************************
 
 Function DBErrors_errorState() As Variant()
-    DBErrors_errorState = Array(Err.Number, Err.Source, Err.Description, Err.HelpFile, Err.HelpContext, Err.LastDllError, Erl())
+    DBErrors_errorState = Array(Err.Number, Err.Source, Err.Description, Err.HelpFile, Err.HelpContext, Err.lastDLLError, Erl())
 End Function
 
 Function DBErrors_errorStateNumber(errorState() As Variant) As Long
