@@ -1,29 +1,17 @@
 Attribute VB_Name = "mDB_Common"
 '************************************************************************************************************************************************
 '
-'    Copyright (c) 2009-2011 David Briant - see https://github.com/DangerMouseB
-'
-'    This program is free software: you can redistribute it and/or modify
-'    it under the terms of the GNU Lesser General Public License as published by
-'    the Free Software Foundation, either version 3 of the License, or
-'    (at your option) any later version.
-'
-'    This program is distributed in the hope that it will be useful,
-'    but WITHOUT ANY WARRANTY; without even the implied warranty of
-'    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-'    GNU Lesser General Public License for more details.
-'
-'    You should have received a copy of the GNU Lesser General Public License
-'    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+'    Copyright (c) 2009-2011, David Briant. All rights reserved.
+'    Licensed under BSD 3-Clause License - see https://github.com/DangerMouseB
 '
 '************************************************************************************************************************************************
- 
+
 Option Explicit
 Option Private Module
 
 ' error reporting
 Private Const MODULE_NAME As String = "mDB_Common"
-Private Const MODULE_VERSION As String = "0.0.1.0"
+Private Const MODULE_VERSION As String = "1.0.0"   ' semver convention
 
 Public Const GENERAL_ERROR_CODE As Long = 30000
 Public Const UNHANDLED_CASE_ERROR_CODE As Long = 30001
